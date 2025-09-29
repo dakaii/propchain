@@ -69,4 +69,44 @@ export class YellowController {
       brokerId: process.env.YELLOW_BROKER_ID,
     };
   }
+
+  @Get('sdk-status')
+  @ApiOperation({ summary: 'Get Yellow SDK integration status' })
+  async getSDKStatus() {
+    const implementation = this.yellowService.getImplementationType();
+    const status = this.yellowService.getConnectionStatus ? this.yellowService.getConnectionStatus() : null;
+    const channels = this.yellowService.getChannels ? this.yellowService.getChannels() : [];
+    
+    return {
+      implementation,
+      status,
+      channels: channels.length,
+      version: '1.0.0',
+      sdk_ready: true
+    };
+  }
+
+  @Post('test-channel')
+  @ApiOperation({ summary: 'Test channel creation with Yellow SDK' })
+  async testChannel(@Request() req: any) {
+    try {
+      // Create a test channel
+      const userAddress = req.user?.address || '0x742d35Cc6ab4C4E7B3C6D0a77b6f89f5C8E9A6B8';
+      const counterparty = '0x742d35Cc6ab4C4E7B3C6D0a77b6f89f5C8E9A6B9';
+      
+      const channel = await this.yellowService.openChannel(userAddress, counterparty, 1000000);
+      
+      return {
+        success: true,
+        channel,
+        implementation: this.yellowService.getImplementationType()
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        implementation: this.yellowService.getImplementationType()
+      };
+    }
+  }
 }
