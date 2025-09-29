@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting Fractional Property Investment Platform"
+echo "🚀 Starting PropChain Investment Platform"
 echo "=================================================="
 echo ""
 

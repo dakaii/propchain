@@ -1,4 +1,4 @@
-# Quick Start Guide - Fractional Property Investment Platform
+# Quick Start Guide - PropChain
 
 ## 🚀 Hackathon Demo Setup
 

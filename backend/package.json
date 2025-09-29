@@ -1,7 +1,7 @@
 {
-  "name": "fractional-property-backend",
+  "name": "propchain-backend",
   "version": "1.0.0",
-  "description": "Fractional property investment platform backend with Yellow Protocol integration",
+  "description": "PropChain backend with Yellow Protocol integration for fractional property investment",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

@@ -55,8 +55,8 @@ async function bootstrap() {
 
   // Swagger Documentation
   const config = new DocumentBuilder()
-    .setTitle('Fractional Property API')
-    .setDescription('API for fractional property investment platform with Yellow Protocol')
+    .setTitle('PropChain API')
+    .setDescription('API for PropChain - fractional property investment platform with Yellow Protocol')
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('auth', 'Authentication endpoints')
@@ -73,7 +73,7 @@ async function bootstrap() {
   await app.listen(port);
 
   console.log(`
-    🚀 Fractional Property Backend is running!
+    🚀 PropChain Backend is running!
     📍 Local:        http://localhost:${port}
     📚 Swagger Docs: http://localhost:${port}/api/docs
     🌍 Environment:  ${process.env.NODE_ENV || 'development'}

@@ -1,4 +1,4 @@
-# 🏠 Fractional Estate Yellow - Property Investment Platform
+# 🏠 PropChain - Property Investment Platform
 
 [![Built for Yellow Network Hackathon](https://img.shields.io/badge/Yellow%20Network-Hackathon%202025-yellow)](https://yellow.org)
 [![Vue 3](https://img.shields.io/badge/Vue.js-3.4-green)](https://vuejs.org/)
@@ -11,8 +11,8 @@ A blockchain-powered platform for fractional real estate investment using Yellow
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/fractional-estate-yellow.git
-cd fractional-estate-yellow
+git clone https://github.com/dakaii/propchain.git
+cd propchain
 
 # Run the platform (installs deps, sets up DB, starts servers)
 ./start.sh

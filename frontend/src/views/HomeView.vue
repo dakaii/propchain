@@ -6,7 +6,7 @@
         <div class="flex h-16 justify-between">
           <div class="flex">
             <div class="flex flex-shrink-0 items-center">
-              <h1 class="text-xl font-bold text-primary-600">FractionalProperty</h1>
+              <h1 class="text-xl font-bold text-primary-600">PropChain</h1>
             </div>
           </div>
           <div class="flex items-center space-x-4">

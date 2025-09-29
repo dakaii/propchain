@@ -1,7 +1,7 @@
 {
-  "name": "fractional-property-frontend",
+  "name": "propchain-frontend",
   "version": "1.0.0",
-  "description": "Vue 3 frontend for fractional property investment platform",
+  "description": "PropChain Vue 3 frontend for fractional property investment",
   "type": "module",
   "scripts": {
     "dev": "vite",
