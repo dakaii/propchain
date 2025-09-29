@@ -52,19 +52,15 @@ interface Position {
 }
 
 export class ApiService {
-  private token: string | null = null;
-
-  constructor() {
-    this.token = localStorage.getItem('token');
+  private getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
   setToken(token: string) {
-    this.token = token;
     localStorage.setItem('token', token);
   }
 
   clearToken() {
-    this.token = null;
     localStorage.removeItem('token');
   }
 
@@ -74,8 +70,9 @@ export class ApiService {
       ...(options.headers || {}),
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}${url}`, {

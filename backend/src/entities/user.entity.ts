@@ -1,19 +1,23 @@
-import { Entity, Property, Enum, OneToMany, Collection, Index, PrimaryKey } from '@mikro-orm/core';
+import { Entity, Property, OneToMany, Collection, Index, PrimaryKey } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { Order } from './order.entity';
 import { Position } from './position.entity';
 
-export enum KYCStatus {
-  PENDING = 'pending',
-  VERIFIED = 'verified',
-  REJECTED = 'rejected',
-}
+export const KYCStatus = {
+  PENDING: 'pending',
+  VERIFIED: 'verified',
+  REJECTED: 'rejected',
+} as const;
 
-export enum UserRole {
-  INVESTOR = 'investor',
-  ADMIN = 'admin',
-  OPERATOR = 'operator',
-}
+export type KYCStatus = typeof KYCStatus[keyof typeof KYCStatus];
+
+export const UserRole = {
+  INVESTOR: 'investor',
+  ADMIN: 'admin',
+  OPERATOR: 'operator',
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 @Entity()
 @Index({ properties: ['email'] })
@@ -37,10 +41,10 @@ export class User {
   @Property({ hidden: true })
   passwordHash!: string;
 
-  @Enum(() => KYCStatus)
+  @Property()
   kycStatus: KYCStatus = KYCStatus.PENDING;
 
-  @Enum(() => UserRole)
+  @Property()
   role: UserRole = UserRole.INVESTOR;
 
   @Property({ type: 'boolean' })

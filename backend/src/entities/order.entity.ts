@@ -1,23 +1,27 @@
-import { Entity, Property, Enum, ManyToOne, PrimaryKey } from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, PrimaryKey } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { User } from './user.entity';
 import { Property as PropertyEntity } from './property.entity';
 
-export enum OrderType {
-  BUY = 'buy',
-  SELL = 'sell',
-}
+export const OrderType = {
+  BUY: 'buy',
+  SELL: 'sell',
+} as const;
 
-export enum OrderStatus {
-  PENDING = 'pending',
-  MATCHED = 'matched',
-  PARTIALLY_FILLED = 'partially_filled',
-  FILLED = 'filled',
-  CANCELLED = 'cancelled',
-  EXPIRED = 'expired',
-  SETTLING = 'settling',
-  SETTLED = 'settled',
-}
+export type OrderType = typeof OrderType[keyof typeof OrderType];
+
+export const OrderStatus = {
+  PENDING: 'pending',
+  MATCHED: 'matched',
+  PARTIALLY_FILLED: 'partially_filled',
+  FILLED: 'filled',
+  CANCELLED: 'cancelled',
+  EXPIRED: 'expired',
+  SETTLING: 'settling',
+  SETTLED: 'settled',
+} as const;
+
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 @Entity()
 export class Order {
@@ -30,10 +34,10 @@ export class Order {
   @ManyToOne(() => PropertyEntity)
   property!: PropertyEntity;
 
-  @Enum(() => OrderType)
+  @Property()
   type!: OrderType;
 
-  @Enum(() => OrderStatus)
+  @Property()
   status: OrderStatus = OrderStatus.PENDING;
 
   @Property({ type: 'integer' })

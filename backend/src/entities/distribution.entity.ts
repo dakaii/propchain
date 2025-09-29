@@ -2,19 +2,23 @@ import { Entity, Property, ManyToOne, PrimaryKey } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { Property as PropertyEntity } from './property.entity';
 
-export enum DistributionType {
-  RENTAL_INCOME = 'rental_income',
-  SALE_PROCEEDS = 'sale_proceeds',
-  DIVIDEND = 'dividend',
-  OTHER = 'other',
-}
+export const DistributionType = {
+  RENTAL_INCOME: 'rental_income',
+  SALE_PROCEEDS: 'sale_proceeds',
+  DIVIDEND: 'dividend',
+  OTHER: 'other',
+} as const;
 
-export enum DistributionStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-}
+export type DistributionType = typeof DistributionType[keyof typeof DistributionType];
+
+export const DistributionStatus = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+} as const;
+
+export type DistributionStatus = typeof DistributionStatus[keyof typeof DistributionStatus];
 
 @Entity()
 export class Distribution {

@@ -1,24 +1,28 @@
-import { Entity, Property as Prop, Enum, OneToMany, Collection, Embeddable, Embedded, PrimaryKey } from '@mikro-orm/core';
+import { Entity, Property as Prop, OneToMany, Collection, Embeddable, Embedded, PrimaryKey } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { Order } from './order.entity';
 import { Position } from './position.entity';
 import { Distribution } from './distribution.entity';
 
-export enum PropertyStatus {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  FULLY_FUNDED = 'fully_funded',
-  SOLD = 'sold',
-  INACTIVE = 'inactive',
-}
+export const PropertyStatus = {
+  PENDING: 'pending',
+  ACTIVE: 'active',
+  FULLY_FUNDED: 'fully_funded',
+  SOLD: 'sold',
+  INACTIVE: 'inactive',
+} as const;
 
-export enum PropertyType {
-  RESIDENTIAL = 'residential',
-  COMMERCIAL = 'commercial',
-  INDUSTRIAL = 'industrial',
-  RETAIL = 'retail',
-  MIXED_USE = 'mixed_use',
-}
+export type PropertyStatus = typeof PropertyStatus[keyof typeof PropertyStatus];
+
+export const PropertyType = {
+  RESIDENTIAL: 'residential',
+  COMMERCIAL: 'commercial',
+  INDUSTRIAL: 'industrial',
+  RETAIL: 'retail',
+  MIXED_USE: 'mixed_use',
+} as const;
+
+export type PropertyType = typeof PropertyType[keyof typeof PropertyType];
 
 @Embeddable()
 export class PropertyAddress {
@@ -76,10 +80,10 @@ export class Property {
   @Embedded(() => PropertyAddress)
   address!: PropertyAddress;
 
-  @Enum(() => PropertyType)
+  @Prop()
   type!: PropertyType;
 
-  @Enum(() => PropertyStatus)
+  @Prop()
   status: PropertyStatus = PropertyStatus.PENDING;
 
   @Prop({ type: 'decimal', precision: 20, scale: 2 })
