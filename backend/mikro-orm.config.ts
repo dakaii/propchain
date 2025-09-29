@@ -8,10 +8,7 @@ import { DatabaseSeeder } from './src/seeders/DatabaseSeeder';
 
 const ormConfig: Options = {
   extensions: [SeedManager],
-  entities:
-    process.env.NODE_ENV === 'production'
-      ? ['./dist/src/entities/*.entity.js']
-      : ['./src/entities/*.entity.ts'],
+  entities: ['./dist/src/entities/*.entity.js'],
   type: 'sqlite',
   dbName: process.env.DB_NAME || './database.sqlite',
   debug: process.env.NODE_ENV === 'development',
