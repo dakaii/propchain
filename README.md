@@ -7,6 +7,11 @@
 
 A blockchain-powered platform for fractional real estate investment using Yellow Protocol's Nitrolite SDK for instant settlement via ERC-7824 state channels. Built for the Yellow Network Hackathon 2025.
 
+## 📋 Prerequisites
+
+- Node.js v20 (LTS) - see `.tool-versions`
+- npm
+
 ## 🚀 Quick Start
 
 ```bash

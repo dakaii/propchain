@@ -49,13 +49,11 @@
     "helmet": "^8.1.0",
     "joi": "^17.9.2",
     "passport": "^0.7.0",
-    "passport-jwt": "^5.0.0",
+    "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0",
     "web3": "^4.2.0",
-    "@yellow-network/nitrolite-sdk": "latest",
-    "@yellow-network/erc7824": "latest",
     "ethers": "^6.10.0"
   },
   "devDependencies": {

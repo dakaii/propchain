@@ -29,10 +29,11 @@ export class AuthController {
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['email', 'password'],
       properties: {
         email: { type: 'string' },
         password: { type: 'string' },
-        walletAddress: { type: 'string', required: false, description: 'Optional - will be auto-generated if not provided' },
+        walletAddress: { type: 'string', description: 'Optional - will be auto-generated if not provided' },
       },
     },
   })

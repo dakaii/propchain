@@ -17,7 +17,7 @@ import { User } from '../../entities/user.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET') || 'secret-key',
+        secret: configService.get('JWT_SECRET') || 'hackathon-demo-secret-key-change-in-production',
         signOptions: {
           expiresIn: configService.get('JWT_EXPIRY') || '7d',
         },
