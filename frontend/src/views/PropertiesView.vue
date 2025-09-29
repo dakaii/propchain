@@ -1,6 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gray-50">
+    <AppHeader />
+    <!-- Success Notification -->
+    <NotificationPopup
+      v-if="showNotification"
+      :type="notificationType"
+      :title="notificationTitle"
+      :message="notificationMessage"
+      @close="showNotification = false"
+    />
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Available Properties</h1>
 
       <div v-if="loading" class="text-center py-12">
@@ -118,6 +127,8 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { api } from '@/services/api';
+import NotificationPopup from '@/components/NotificationPopup.vue';
+import AppHeader from '@/components/AppHeader.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -128,6 +139,12 @@ const error = ref('');
 const showBuyModal = ref(false);
 const selectedProperty = ref<any>(null);
 const buyShares = ref(1);
+
+// Notification state
+const showNotification = ref(false);
+const notificationType = ref<'success' | 'error'>('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const getStatusClass = (status: string) => {
   return status === 'active'
@@ -160,11 +177,21 @@ const confirmBuy = async () => {
 
   try {
     await api.createOrder(selectedProperty.value.id, buyShares.value, 'buy');
-    alert(`Successfully purchased ${buyShares.value} shares of ${selectedProperty.value.name}!`);
+
+    // Show success notification
+    notificationType.value = 'success';
+    notificationTitle.value = 'Purchase Successful!';
+    notificationMessage.value = `You've purchased ${buyShares.value} shares of ${selectedProperty.value.name}`;
+    showNotification.value = true;
+
     closeBuyModal();
     fetchProperties(); // Refresh data
   } catch (err) {
-    alert('Failed to complete purchase. Please try again.');
+    // Show error notification
+    notificationType.value = 'error';
+    notificationTitle.value = 'Purchase Failed';
+    notificationMessage.value = 'Failed to complete purchase. Please try again.';
+    showNotification.value = true;
     console.error(err);
   }
 };

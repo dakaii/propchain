@@ -1,6 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gray-50">
+    <AppHeader />
+    <!-- Success/Error Notification -->
+    <NotificationPopup
+      v-if="showNotification"
+      :type="notificationType"
+      :title="notificationTitle"
+      :message="notificationMessage"
+      @close="showNotification = false"
+    />
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">My Portfolio</h1>
 
       <!-- Portfolio Summary -->
@@ -160,6 +169,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/services/api';
+import NotificationPopup from '@/components/NotificationPopup.vue';
+import AppHeader from '@/components/AppHeader.vue';
 
 const router = useRouter();
 
@@ -169,6 +180,12 @@ const error = ref('');
 const showSellModal = ref(false);
 const selectedPosition = ref<any>(null);
 const sellShares = ref(1);
+
+// Notification state
+const showNotification = ref(false);
+const notificationType = ref<'success' | 'error'>('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const totalInvested = computed(() =>
   positions.value.reduce((sum, p) => sum + p.totalInvested, 0)
@@ -210,11 +227,21 @@ const confirmSell = async () => {
 
   try {
     await api.createOrder(selectedPosition.value.property.id, sellShares.value, 'sell');
-    alert(`Successfully sold ${sellShares.value} shares of ${selectedPosition.value.property.name}!`);
+
+    // Show success notification
+    notificationType.value = 'success';
+    notificationTitle.value = 'Sale Successful!';
+    notificationMessage.value = `You've sold ${sellShares.value} shares of ${selectedPosition.value.property.name}`;
+    showNotification.value = true;
+
     closeSellModal();
     fetchPortfolio(); // Refresh data
   } catch (err) {
-    alert('Failed to complete sale. Please try again.');
+    // Show error notification
+    notificationType.value = 'error';
+    notificationTitle.value = 'Sale Failed';
+    notificationMessage.value = 'Failed to complete sale. Please try again.';
+    showNotification.value = true;
     console.error(err);
   }
 };

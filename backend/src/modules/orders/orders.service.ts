@@ -21,14 +21,29 @@ export class OrdersService {
     price: number,
   ) {
     const user = await this.em.findOne(User, { id: userId });
-    const property = await this.em.findOne(Property, { id: propertyId });
+    const property = await this.em.findOne(Property, { id: propertyId }, {
+      populate: ['positions'],
+    });
 
     if (!user || !property) {
       throw new BadRequestException('User or property not found');
     }
 
+    // Check available shares for buy orders
     if (type === OrderType.BUY && quantity > property.availableShares) {
       throw new BadRequestException('Not enough shares available');
+    }
+
+    // Check user's position for sell orders
+    if (type === OrderType.SELL) {
+      const position = await this.em.findOne(Position, {
+        user: { id: userId },
+        property: { id: propertyId },
+      });
+
+      if (!position || position.shares < quantity) {
+        throw new BadRequestException('Not enough shares owned to sell');
+      }
     }
 
     const order = this.em.create(Order, {
@@ -38,14 +53,16 @@ export class OrdersService {
       quantity,
       price,
       totalAmount: quantity * price,
-      status: OrderStatus.PENDING,
+      status: OrderStatus.MATCHED, // Execute immediately for MVP
+      filledQuantity: quantity,
+      matchedAt: new Date(),
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
     await this.em.persistAndFlush(order);
 
-    // Try to match the order immediately
-    await this.matchOrder(order);
+    // Execute the order immediately (MVP approach - no order book matching)
+    await this.executeOrder(order);
 
     return order;
   }
@@ -95,30 +112,91 @@ export class OrdersService {
     return order;
   }
 
-  async updatePositions(buyOrder: Order, sellOrder: Order) {
-    // Update buyer's position
-    let buyerPosition = await this.em.findOne(Position, {
-      user: buyOrder.user,
-      property: buyOrder.property,
-    });
+  async executeOrder(order: Order) {
+    const property = await this.em.findOne(Property, { id: order.property.id });
 
-    if (!buyerPosition) {
-      buyerPosition = this.em.create(Position, {
-        user: buyOrder.user,
-        property: buyOrder.property,
-        shares: 0,
-        averagePrice: buyOrder.price,
-        totalInvested: 0,
-        currentValue: 0,
+    if (order.type === OrderType.BUY) {
+      // For buy orders: create or update buyer's position
+      let position = await this.em.findOne(Position, {
+        user: order.user,
+        property: order.property,
       });
+
+      if (!position) {
+        position = this.em.create(Position, {
+          user: order.user,
+          property: order.property,
+          shares: 0,
+          averagePrice: 0,
+          totalInvested: 0,
+          currentValue: 0,
+          unrealizedGains: 0,
+          realizedGains: 0,
+        });
+      }
+
+      // Update position
+      const newShares = position.shares + order.filledQuantity;
+      const newInvestment = order.filledQuantity * order.price;
+      position.totalInvested += newInvestment;
+      position.shares = newShares;
+      position.averagePrice = position.totalInvested / position.shares;
+      position.currentValue = position.shares * property.pricePerShare;
+      position.unrealizedGains = position.currentValue - position.totalInvested;
+
+      // Update property available shares
+      property.availableShares -= order.filledQuantity;
+
+      await this.em.persistAndFlush([position, property]);
+    } else if (order.type === OrderType.SELL) {
+      // For sell orders: update seller's position
+      const position = await this.em.findOne(Position, {
+        user: order.user,
+        property: order.property,
+      });
+
+      if (!position) {
+        throw new BadRequestException('Position not found');
+      }
+
+      // Calculate realized gains
+      const saleProceeds = order.filledQuantity * order.price;
+      const costBasis = (position.totalInvested / position.shares) * order.filledQuantity;
+      const realizedGain = saleProceeds - costBasis;
+
+      // Update position
+      position.shares -= order.filledQuantity;
+      position.totalInvested -= costBasis;
+      position.realizedGains += realizedGain;
+
+      if (position.shares > 0) {
+        position.currentValue = position.shares * property.pricePerShare;
+        position.unrealizedGains = position.currentValue - position.totalInvested;
+      } else {
+        // If all shares sold, reset position values
+        position.currentValue = 0;
+        position.unrealizedGains = 0;
+        position.totalInvested = 0;
+        position.averagePrice = 0;
+      }
+
+      // Update property available shares (shares go back to the pool)
+      property.availableShares += order.filledQuantity;
+
+      await this.em.persistAndFlush([position, property]);
     }
 
-    buyerPosition.shares += buyOrder.filledQuantity;
-    buyerPosition.totalInvested += buyOrder.filledQuantity * buyOrder.price;
-    buyerPosition.averagePrice = buyerPosition.totalInvested / buyerPosition.shares;
-    buyerPosition.currentValue = buyerPosition.shares * buyOrder.property.pricePerShare;
+    // Process through state channel (mock for MVP)
+    try {
+      await this.stateChannelService.processOrder(order);
+    } catch (error) {
+      console.error('State channel processing failed:', error);
+    }
+  }
 
-    await this.em.persistAndFlush(buyerPosition);
+  async updatePositions(buyOrder: Order, sellOrder: Order) {
+    // This method is now deprecated in favor of executeOrder
+    // Kept for backward compatibility but not used
   }
 
   async getUserOrders(userId: string) {

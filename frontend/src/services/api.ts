@@ -58,6 +58,16 @@ export class ApiService {
     this.token = localStorage.getItem('token');
   }
 
+  setToken(token: string) {
+    this.token = token;
+    localStorage.setItem('token', token);
+  }
+
+  clearToken() {
+    this.token = null;
+    localStorage.removeItem('token');
+  }
+
   private async request(url: string, options: RequestInit = {}) {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -85,8 +95,7 @@ export class ApiService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    this.token = response.access_token;
-    localStorage.setItem('token', this.token);
+    this.setToken(response.access_token);
     return response;
   }
 
@@ -123,8 +132,7 @@ export class ApiService {
   }
 
   logout() {
-    this.token = null;
-    localStorage.removeItem('token');
+    this.clearToken();
   }
 }
 

@@ -182,8 +182,8 @@ export class DatabaseSeeder extends Seeder {
       averagePrice: 50,
       totalInvested: 25000,
       currentValue: 25000,
-      unrealizedGain: 0,
-      realizedGain: 0,
+      unrealizedGains: 0,
+      realizedGains: 0,
     });
 
     const position2 = em.create(Position, {
@@ -193,8 +193,8 @@ export class DatabaseSeeder extends Seeder {
       averagePrice: 48,
       totalInvested: 48000,
       currentValue: 50000,
-      unrealizedGain: 2000,
-      realizedGain: 0,
+      unrealizedGains: 2000,
+      realizedGains: 0,
     });
 
     const position3 = em.create(Position, {
@@ -204,8 +204,8 @@ export class DatabaseSeeder extends Seeder {
       averagePrice: 50,
       totalInvested: 10000,
       currentValue: 10000,
-      unrealizedGain: 0,
-      realizedGain: 0,
+      unrealizedGains: 0,
+      realizedGains: 0,
     });
 
     await em.persistAndFlush([

@@ -48,7 +48,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
 
-  if (to.meta.requiresAuth && !token) {
+  // Redirect to portfolio if trying to access login/register while authenticated
+  if ((to.path === '/login' || to.path === '/register') && token) {
+    next('/portfolio')
+  } else if (to.meta.requiresAuth && !token) {
     next('/login')
   } else {
     next()
