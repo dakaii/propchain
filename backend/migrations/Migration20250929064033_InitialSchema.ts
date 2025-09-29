@@ -1,0 +1,27 @@
+import { Migration } from '@mikro-orm/migrations';
+
+export class Migration20250929064033_InitialSchema extends Migration {
+
+  async up(): Promise<void> {
+    this.addSql('create table `property` (`id` text not null, `name` text not null, `description` text not null, `address_street` text not null, `address_city` text not null, `address_state` text not null, `address_zip_code` text not null, `address_country` text not null, `type` text check (`type` in (\'residential\', \'commercial\', \'industrial\', \'retail\', \'mixed_use\')) not null, `status` text check (`status` in (\'pending\', \'active\', \'fully_funded\', \'sold\', \'inactive\')) not null default \'pending\', `total_value` numeric(20,2) not null, `total_shares` integer not null, `price_per_share` numeric(20,6) not null, `available_shares` integer not null, `minimum_investment` numeric(20,2) not null default 50, `contract_address` text not null, `token_symbol` text null, `metrics_monthly_rent` numeric(20,2) not null, `metrics_annual_yield` numeric(5,2) not null, `metrics_occupancy_rate` numeric(5,2) not null, `metrics_square_footage` integer not null, `metrics_year_built` integer not null, `metrics_bedrooms` integer not null, `metrics_bathrooms` integer not null, `images` json null, `documents` json null, `funding_deadline` datetime null, `funding_completed_at` datetime null, `created_at` datetime not null, `updated_at` datetime not null, primary key (`id`));');
+
+    this.addSql('create table `distribution` (`id` text not null, `property_id` text not null, `total_amount` numeric(20,2) not null, `per_share_amount` numeric(20,6) not null, `eligible_shares` integer not null, `description` text null, `record_date` datetime null, `payment_date` datetime null, `tx_hash` text null, `created_at` datetime not null, `updated_at` datetime not null, constraint `distribution_property_id_foreign` foreign key(`property_id`) references `property`(`id`) on update cascade, primary key (`id`));');
+    this.addSql('create index `distribution_property_id_index` on `distribution` (`property_id`);');
+
+    this.addSql('create table `user` (`id` text not null, `email` text not null, `wallet_address` text not null, `first_name` text null, `last_name` text null, `password_hash` text not null, `kyc_status` text check (`kyc_status` in (\'pending\', \'verified\', \'rejected\')) not null default \'pending\', `role` text check (`role` in (\'investor\', \'admin\', \'operator\')) not null default \'investor\', `is_active` integer not null default true, `email_verified` integer not null default false, `yellow_channel_id` text null, `total_invested` numeric(20,2) not null default 0, `total_returns` numeric(20,2) not null default 0, `last_login_at` datetime null, `kyc_verified_at` datetime null, `created_at` datetime not null, `updated_at` datetime not null, primary key (`id`));');
+    this.addSql('create unique index `user_email_unique` on `user` (`email`);');
+    this.addSql('create unique index `user_wallet_address_unique` on `user` (`wallet_address`);');
+    this.addSql('create index `user_wallet_address_index` on `user` (`wallet_address`);');
+    this.addSql('create index `user_email_index` on `user` (`email`);');
+
+    this.addSql('create table `position` (`id` text not null, `user_id` text not null, `property_id` text not null, `shares` integer not null, `average_price` numeric(20,6) not null, `total_invested` numeric(20,2) not null, `current_value` numeric(20,2) not null, `realized_gains` numeric(20,2) not null default 0, `unrealized_gains` numeric(20,2) not null default 0, `total_distributions` numeric(20,2) not null default 0, `last_distribution_at` datetime null, `created_at` datetime not null, `updated_at` datetime not null, `transaction_history` json null, constraint `position_user_id_foreign` foreign key(`user_id`) references `user`(`id`) on update cascade, constraint `position_property_id_foreign` foreign key(`property_id`) references `property`(`id`) on update cascade, primary key (`id`));');
+    this.addSql('create index `position_user_id_index` on `position` (`user_id`);');
+    this.addSql('create index `position_property_id_index` on `position` (`property_id`);');
+    this.addSql('create index `position_user_id_property_id_index` on `position` (`user_id`, `property_id`);');
+
+    this.addSql('create table `order` (`id` text not null, `user_id` text not null, `property_id` text not null, `type` text check (`type` in (\'buy\', \'sell\')) not null, `status` text check (`status` in (\'pending\', \'matched\', \'partially_filled\', \'filled\', \'cancelled\', \'expired\', \'settling\', \'settled\')) not null default \'pending\', `quantity` integer not null, `filled_quantity` integer not null default 0, `price` numeric(20,6) not null, `total_amount` numeric(20,2) not null, `yellow_channel_id` text null, `yellow_transaction_id` text null, `matched_with_order_id` text null, `tx_hash` text null, `expires_at` datetime null, `matched_at` datetime null, `settled_at` datetime null, `metadata` json null, `created_at` datetime not null, `updated_at` datetime not null, constraint `order_user_id_foreign` foreign key(`user_id`) references `user`(`id`) on update cascade, constraint `order_property_id_foreign` foreign key(`property_id`) references `property`(`id`) on update cascade, primary key (`id`));');
+    this.addSql('create index `order_user_id_index` on `order` (`user_id`);');
+    this.addSql('create index `order_property_id_index` on `order` (`property_id`);');
+  }
+
+}
