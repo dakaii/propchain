@@ -106,7 +106,8 @@ export class ApiService {
   }
 
   async getPortfolio(): Promise<Position[]> {
-    return this.request('/portfolio');
+    const response = await this.request('/portfolio');
+    return response.positions || [];
   }
 
   async createOrder(propertyId: string, shares: number, type: 'buy' | 'sell') {
@@ -114,7 +115,7 @@ export class ApiService {
       method: 'POST',
       body: JSON.stringify({
         propertyId,
-        shares,
+        quantity: shares, // Backend expects 'quantity'
         type,
         price: 50, // Using fixed price for MVP
       }),
