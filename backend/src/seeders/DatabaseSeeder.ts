@@ -2,6 +2,7 @@ import type { EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
 import { User, KYCStatus, UserRole } from '../entities/user.entity';
 import { Property, PropertyStatus, PropertyType } from '../entities/property.entity';
+import { Position } from '../entities/position.entity';
 import * as bcrypt from 'bcrypt';
 
 export class DatabaseSeeder extends Seeder {
@@ -173,6 +174,40 @@ export class DatabaseSeeder extends Seeder {
       fundingCompletedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
     });
 
+    // Create portfolio positions for demo user
+    const position1 = em.create(Position, {
+      user: demoUser,
+      property: property1,
+      shares: 500,
+      averagePrice: 50,
+      totalInvested: 25000,
+      currentValue: 25000,
+      unrealizedGain: 0,
+      realizedGain: 0,
+    });
+
+    const position2 = em.create(Position, {
+      user: demoUser,
+      property: property2,
+      shares: 1000,
+      averagePrice: 48,
+      totalInvested: 48000,
+      currentValue: 50000,
+      unrealizedGain: 2000,
+      realizedGain: 0,
+    });
+
+    const position3 = em.create(Position, {
+      user: demoUser,
+      property: property3,
+      shares: 200,
+      averagePrice: 50,
+      totalInvested: 10000,
+      currentValue: 10000,
+      unrealizedGain: 0,
+      realizedGain: 0,
+    });
+
     await em.persistAndFlush([
       demoUser,
       adminUser,
@@ -180,6 +215,9 @@ export class DatabaseSeeder extends Seeder {
       property2,
       property3,
       property4,
+      position1,
+      position2,
+      position3,
     ]);
 
     console.log('✅ Database seeded successfully!');
@@ -189,6 +227,7 @@ export class DatabaseSeeder extends Seeder {
     console.log('  Admin: admin@fractional.property / Password: demo123');
     console.log('');
     console.log('🏠 Sample Properties: 4 properties created');
+    console.log('📊 Portfolio Positions: 3 investments for demo user');
     console.log('');
   }
 }
