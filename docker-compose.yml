@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Local blockchain (Anvil)
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    command: anvil --host 0.0.0.0 --accounts 10 --balance 10000 --chain-id 31337
+    ports:
+      - "8545:8545"
+    networks:
+      - fractional-network
+
+  # Redis for queues (optional for MVP, but keeping for completeness)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - fractional-network
+
+  # Backend API
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_NAME: ./database.sqlite
+      JWT_SECRET: hackathon-secret-key
+      JWT_EXPIRY: 7d
+      # Local blockchain connection
+      BLOCKCHAIN_RPC_URL: http://anvil:8545
+      CHAIN_ID: 31337
+      # Test wallet from Anvil (account 0)
+      YELLOW_BROKER_SECRET: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      YELLOW_API_KEY: test-api-key
+      YELLOW_API_ENDPOINT: http://localhost:8545
+      YELLOW_BROKER_ID: test-broker-001
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Frontend
+      FRONTEND_URL: http://localhost:5173
+    depends_on:
+      - anvil
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - fractional-network
+    command: sh -c "npm install && npm run start:dev"
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000/api
+      VITE_BLOCKCHAIN_RPC_URL: http://localhost:8545
+      VITE_CHAIN_ID: 31337
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - fractional-network
+    command: sh -c "npm install && npm run dev -- --host"
+
+networks:
+  fractional-network:
+    driver: bridge
